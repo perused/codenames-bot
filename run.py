@@ -8,10 +8,13 @@ import sys
 
 class Bot:
     def __init__(self):
-        board = [[None]*4 for i in range(4)]
+        self.board = [[(None, None)]*4 for i in range(4)]
+        self.blue_cards = []
+        self.red_cards = []
+        self.all_cards = []
 
-    def populate_board(self):
-        print("\nPopulating game board works as follows: Enter the name of the card (and if bot is spymaster, the type of the card too) starting from the top left and going across to the right before going down a row.\n\nCard types: red ('r'), blue ('b'), neutral ('n'), black ('black')\n\ne.g bot is spymaster: 'mountain red'\ne.g bot is player: 'mountain'\n")
+    def populate_board_spymaster(self):
+        print("\nPopulating game board works as follows: Enter the name and type of the card starting from the top left and going across to the right before going down a row.\n\nCard types: red ('r'), blue ('b'), neutral ('n'), black ('black')\n\ne.g 'mountain red'\n")
         colours = ["red", "r", "blue", "b", "neutral", "n", "black"]
         for i in range(4):
             for j in range(4):
@@ -27,24 +30,48 @@ class Bot:
                     if colour not in colours:
                         print("Invalid colour, try again.")
                         continue
-                    confirm = input(f"\nConfirming card = '{card}' and colour = {colour}? (Press ENTER for yes, any other key for no)")
-                    if confirm != "\n":
-                        print("Confirmed.")
+                    confirm = input(f"\nConfirming card = '{card}' and colour = '{colour}'? (Press 'y' for yes, any other key for no): ").lower()
+                    if "y" in confirm:
+                        print("\nConfirmed.")
+                        self.board[i][j] = (card, colour)
+                        if colour == "r" or colour == "red":
+                            self.red_cards.append(card)
+                        elif colour == "b" or colour == "blue":
+                            self.blue_cards.append(card)
+                        self.all_cards.append(card)
                         time.sleep(1)
                         break
                     else:
-                        print("Cancelled.")
+                        print("\nCancelled.\n")
                         continue
                 self.print_board()
-                    
+        print("Finished entering board, game begins now!")
 
-
-
-
+    def populate_board_player(self):
+        print("\nPopulating game board works as follows: Enter the name of the card starting from the top left and going across to the right before going down a row.\n\ne.g 'mountain'\n")
+        for i in range(4):
+            for j in range(4):
+                while True:
+                    card = input("Enter name of card ('q' to quit): ").lower()
+                    if card == "q":
+                        sys.exit()
+                    confirm = input(f"\nConfirming card = '{card}'? (Press 'y' for yes, any other key for no): ").lower()
+                    if "y" in confirm:
+                        print("\nConfirmed.")
+                        self.board[i][j] = (card, None)
+                        self.all_cards.append(card)
+                        time.sleep(1)
+                        break
+                    else:
+                        print("\nCancelled.\n")
+                        continue
+                self.print_board()
+        print("Finished entering board, game begins now!")
+                
     def play(self):
         pass
 
-    def get_best_spymaster_move(self, team):
+    def get_best_spymaster_clue(self, team):
         pass
 
     def get_best_player_guess(self, clue):
@@ -55,8 +82,9 @@ class Bot:
         print("Current board:")
         for i in range(4):
             for j in range(4):
-                print(f"{self.board[i][j]} ", end="")
+                print(f"{self.board[i][j][0]}\t", end="")
             print()
+        print()
 
 # find out whether bot is playing as spymaster or player
 def get_role():
@@ -83,7 +111,10 @@ def main():
     print("Welcome to the Codenames Bot!\n")
     role = get_role()
     bot = Bot()
-    bot.populate_board()
+    if role == "s":
+        bot.populate_board_spymaster()
+    else:
+        bot.populate_board_player()
     # then play!
     bot.play()
 
