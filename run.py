@@ -14,6 +14,7 @@ class Bot:
         self.blue_cards = []
         self.red_cards = []
         self.all_cards = []
+        self.card_coords = {} # card: i, j
 
     def populate_board(self):
         if self.role == "s":
@@ -47,6 +48,7 @@ class Bot:
                         elif colour == "b" or colour == "blue":
                             self.blue_cards.append(card)
                         self.all_cards.append(card)
+                        self.card_coords[card] = (i, j)
                         time.sleep(1)
                         break
                     else:
@@ -68,6 +70,7 @@ class Bot:
                         print("\nConfirmed.")
                         self.board[i][j] = (card, None)
                         self.all_cards.append(card)
+                        self.card_coords[card] = (i, j)
                         time.sleep(1)
                         break
                     else:
@@ -75,18 +78,53 @@ class Bot:
                         continue
                 self.print_board()
         print("Finished entering board, game begins now!")
+        time.sleep(1)
+        os.system("clear")
                 
     def play(self):
-        start = input("Is bot starting? 'y' for yes and anything else for no").lower()
+        if self.role == "s":
+            self.play_spymaster()
+        else:
+            self.play_player()
+
+    def play_spymaster(self):
+        # could work out from number of red and blue cards whether bot is starting or not
+        start = input("Is bot starting? 'y' for yes and anything else for no: ").lower()
         if "y" in start:
             start = True
             print("")
         else:
             start = False
+        bot_turn = start
         while True:
-            pass
+            if bot_turn:
+                print("Bot's turn\n")
+                print("Thinking of clue...\n")
+                time.sleep(3)
+                print("Clue is... SPAGHETTI!\n")
+                bot_turn = False
+            else:
+                print("Other team's turn\n")
+                print("Enter which cards have been guessed, one by one, so the bot knows which ones are no longer in the game. Type 'q' when finished.\n")
+                while True:
+                    card = input("Enter card here: ").lower()
+                    if card == 'q':
+                        break
+                    if card not in self.all_cards:
+                        print("That is not a known card, please try again.")
+                        continue
+                    else:
+                        print(f"Turning '{card}' over.")
+                        i, j = self.card_coords[card]
+                        self.board[i][j] = ("X", self.board[i][j][1])
+                bot_turn = True
+                self.print_board()
+    
+    def play_player(self):
+        pass
             
     def get_best_spymaster_clue(self, team):
+        # the best clue should take into account our teams similarity - other team similarity 
         pass
 
     def get_best_player_guess(self, clue):
