@@ -7,11 +7,19 @@ import sys
 #     raise Exception("Please execute the 'setup.sh' bash script before running this program.")
 
 class Bot:
-    def __init__(self):
+    def __init__(self, role, team):
+        self.role = role
+        self.team = team
         self.board = [[(None, None)]*4 for i in range(4)]
         self.blue_cards = []
         self.red_cards = []
         self.all_cards = []
+
+    def populate_board(self):
+        if self.role == "s":
+            self.populate_board_spymaster()
+        else:
+            self.populate_board_player()
 
     def populate_board_spymaster(self):
         print("\nPopulating game board works as follows: Enter the name and type of the card starting from the top left and going across to the right before going down a row.\n\nCard types: red ('r'), blue ('b'), neutral ('n'), black ('black')\n\ne.g 'mountain red'\n")
@@ -69,8 +77,15 @@ class Bot:
         print("Finished entering board, game begins now!")
                 
     def play(self):
-        pass
-
+        start = input("Is bot starting? 'y' for yes and anything else for no").lower()
+        if "y" in start:
+            start = True
+            print("")
+        else:
+            start = False
+        while True:
+            pass
+            
     def get_best_spymaster_clue(self, team):
         pass
 
@@ -103,6 +118,22 @@ def get_role():
     time.sleep(1)
     return role
 
+def get_team():
+    team = None
+    while not team:
+        team = input("Are we playing as red (r) or blue (b)? ").lower()
+        if "r" in team:
+            team = "r"
+        elif "b" in team:
+            team = "b"
+        else:
+            print("Invalid input. Please enter 'r' for red team or 'b' for blue team.")
+    print()
+    os.system("clear")
+    print(f'{"Red" if team == "r" else "Blue"} selected!')
+    time.sleep(1)
+    return team
+
 def main():
     # check requirements
     # if not os.path.isfile("glove300.word_vectors"):
@@ -110,11 +141,9 @@ def main():
     os.system("clear")
     print("Welcome to the Codenames Bot!\n")
     role = get_role()
-    bot = Bot()
-    if role == "s":
-        bot.populate_board_spymaster()
-    else:
-        bot.populate_board_player()
+    team = get_team()
+    bot = Bot(role, team)
+    bot.populate_board()
     # then play!
     bot.play()
 
