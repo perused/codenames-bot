@@ -3,6 +3,7 @@ import time
 import sys
 import gensim.downloader as api
 from gensim.models import KeyedVectors
+from tqdm import tqdm
 
 
 class Bot:
@@ -14,6 +15,7 @@ class Bot:
         self.neutral_cards = []
         self.all_cards = []
         self.model = KeyedVectors.load("glove300.word_vectors")
+        self.related_words = []
 
     def populate_board(self):
         if self.role == "s":
@@ -21,13 +23,26 @@ class Bot:
         else:
             self.populate_board_player()
 
+    def process_related(self):
+        for word in self.bot_cards:
+            similar = self.model.similar_by_word(word)
+            for i in range(len(similar)):
+                similar_word, _ = similar[i]
+                self.related_words.append(similar_word)
+        related = self.related_words.copy()
+        for word in related:
+            similar = self.model.similar_by_word(word)
+            for i in range(len(similar)):
+                similar_word, _ = similar[i]
+                self.related_words.append(similar_word)
+
     def populate_board_spymaster(self):
         self.request_cards("from the bot's team", self.bot_cards)
         self.request_cards("NOT from the bot's team", self.not_bot_cards)
         self.request_cards("neutral", self.neutral_cards)
         self.black_card = input("Please enter the black card here: ").lower()
-        print("\nThank you, card accepted.")
-        time.sleep(1)
+        print("\nThank you, card accepted.\n\n Processing cards...\n")
+        self.process_related()
         os.system("clear")
         self.all_cards = self.bot_cards + self.not_bot_cards + self.neutral_cards + [self.black_card]
 
@@ -132,15 +147,36 @@ class Bot:
                 sys.exit()        
 
     def get_best_spymaster_clue(self):
-        # the best clue should take into account our teams similarity - other team similarity 
+        # the best clue should take into account our teams similarity - other team similarity
         print("Bot is thinking of a clue...")
-        time.sleep(5)
-        # result = wv.similar_by_word("cat")
-        # most_similar_key, similarity = result[1]
-        # print(most_similar_key, similarity)
-        # for word in self.model.similar_by_word(clue):
-        #     print(word)
-        #     break
+        self.bot_cards = ["horse", "shoe", "gallop", "ride"]
+        self.process_related()
+        self.not_bot_cards = ["dog", "man", "woman", "cat"]
+        self.neutral_cards = ["toaster", "oven", "kettle"]
+        self.black_card = "hat"
+        wv = self.model
+        # all_words = self.model.index_to_key
+        all_words = self.related_words
+        best_clue = ["", float("-inf")]
+
+        multipliers = [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3]
+
+        for multiplier in multipliers:
+            for i in range(len(all_words)):
+                word = all_words[i]
+                if word in self.bot_cards:
+                    continue
+                similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
+                similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards])
+                similarity_black = wv.similarity(word, self.black_card) * multiplier
+                score = similarity_bots - (similarity_not_bots/2) - similarity_black
+                if score > best_clue[1]:
+                    best_clue[0] = word
+                    best_clue[1] = score
+            print(f"For the multiplier {multiplier}, the clue is '{best_clue[0]}'")
+        time.sleep(10)
+        return best_clue[0]
+
 
     def get_best_player_guess(self, clue, number):
         print("Beep beep... what to guess... beep boop...\n")
@@ -182,18 +218,18 @@ def get_role():
 
 
 def main():
-    # bot = Bot("p")
-    # bot.get_best_player_guess("hat", 2)
+    bot = Bot("s")
+    bot.get_best_spymaster_clue()
     # check requirements
-    if not os.path.isfile("glove300.word_vectors"):
-        raise Exception("Please execute the 'setup.sh' bash script before running this program.")
-    os.system("clear")
-    print("Welcome to the Codenames Bot!\n")
-    role = get_role()
-    bot = Bot(role)
-    bot.populate_board()
-    # then play!
-    bot.play()
+    # if not os.path.isfile("glove300.word_vectors"):
+    #     raise Exception("Please execute the 'setup.sh' bash script before running this program.")
+    # os.system("clear")
+    # print("Welcome to the Codenames Bot!\n")
+    # role = get_role()
+    # bot = Bot(role)
+    # bot.populate_board()
+    # # then play!
+    # bot.play()
 
 
 if __name__ == "__main__":
