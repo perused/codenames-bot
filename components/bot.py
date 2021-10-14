@@ -21,10 +21,15 @@ class Bot(ABC):
     @abstractmethod
     def remove_cards(self, cards):
         pass
-    
+
     @abstractmethod
     def play(self):
         pass
+
+    @abstractmethod
+    def get_cards_from_file(file_path):
+        pass
+
 
     def request_cards(self, req, ls):
         while True:
@@ -47,8 +52,3 @@ class Bot(ABC):
         except:
             pass
         return
-
-
-    
-
-

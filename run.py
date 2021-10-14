@@ -1,4 +1,5 @@
 import os
+import sys
 from components.player import Player
 from components.spymaster import Spymaster
 
@@ -17,17 +18,19 @@ def get_bot():
         else:
             print("Invalid input. Please enter 's' for Spymaster or 'p' for player.")
 
-
-def main():
+def main(args):
     """Get the role of the bot and begin game"""
     if not os.path.isfile("components/glove300.word_vectors"):
         raise Exception("Please execute the 'setup.sh' bash script before running this program.")
     os.system("clear")
     print("Welcome to the Codenames Bot!\n")
     bot = get_bot()
-    bot.populate_board()
+    if args:
+        bot.get_cards_from_file(args[0])
+    else:
+        bot.populate_board()
     bot.play()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

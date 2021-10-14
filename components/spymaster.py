@@ -26,15 +26,33 @@ class Spymaster(Bot):
                     continue
                 self.related_words.append(similar_word)
 
+    def process_added(self):
+        print("\nThank you, card accepted.\n\n Processing cards...\n")
+        self.process_related()
+        os.system("clear")
+        self.all_cards = self.bot_cards + self.not_bot_cards + self.neutral_cards + [self.black_card]
+
     def populate_board(self):
         self.request_cards("from the bot's team", self.bot_cards)
         self.request_cards("NOT from the bot's team", self.not_bot_cards)
         self.request_cards("neutral", self.neutral_cards)
         self.black_card = input("Please enter the black card here: ").lower()
-        print("\nThank you, card accepted.\n\n Processing cards...\n")
-        self.process_related()
-        os.system("clear")
-        self.all_cards = self.bot_cards + self.not_bot_cards + self.neutral_cards + [self.black_card]
+        self.process_added()
+        # print("\nThank you, card accepted.\n\n Processing cards...\n")
+        # self.process_related()
+        # os.system("clear")
+        # self.all_cards = self.bot_cards + self.not_bot_cards + self.neutral_cards + [self.black_card]
+
+    def get_cards_from_file(self, file_path):
+        with open(file_path, "r") as f:
+            lines = f.readlines()
+            # print(lines)
+            lists = [self.bot_cards, self.not_bot_cards, self.neutral_cards]
+            for line, list in zip(lines, lists):
+                list += line.rstrip().split(" ")
+            self.black_card = lines[-1].rstrip()
+        self.process_added()
+
 
     def print_board(self, clue):
         os.system("clear")
@@ -44,7 +62,7 @@ class Spymaster(Bot):
             print(i, card)
         print()
         if clue:
-            print(f"Bot just gave this clue: '{clue}'\n")
+            print(f"Bot just gave this clue: '{clue[0]}' {clue[1]}\n")
 
     def remove_cards(self, cards):
         removed = set()
@@ -89,15 +107,15 @@ class Spymaster(Bot):
                 sys.exit()
 
 
-    def check_pair(word, card, similarity_not_bots, similarity_black):
-        score = wv.similarity(word, card) - (similarity_not_bots/2) - similarity_black
+    def check_pair(self, word, card, similarity_not_bots, similarity_black):
+        score = self.model.similarity(word, card) - similarity_not_bots - similarity_black
         return score
 
-    def check_word(word, similarity_not_bots, similarity_black):
-        scores = { x:check_pair(word, x, similarity_not_bots, similarity_black) for x in self.bot_cards}
+    def check_word(self, word, similarity_not_bots, similarity_black):
+        scores = { x: self.check_pair(word, x, similarity_not_bots, similarity_black) for x in self.bot_cards}
         score_sum = sum(scores.values())
         score_average = score_sum/len(scores)
-        good_cards = [ x for x in scores.values() if x >= average]
+        good_cards = [ x for x in scores.values() if x >= score_average]
         return score_sum, len(good_cards)
 
     # TODO: this whole function
@@ -119,10 +137,10 @@ class Spymaster(Bot):
             # TODO: come up with a good scoring idea
 
             # SCORE IDEA 1
-            similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
-            similarity_black = sum(wv.similarity(word, self.black_card) for i in range(len(self.bot_cards)))
-            score = similarity_bots - similarity_black
-
+            # similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
+            # similarity_black = sum(wv.similarity(word, self.black_card) for i in range(len(self.bot_cards)))
+            # score = similarity_bots - similarity_black
+            # BUG: Crashes if the black card is entered with a space by accident
             # SCORE IDEA 2
             # similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
             # similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards])
@@ -130,9 +148,9 @@ class Spymaster(Bot):
             # score = similarity_bots - (similarity_not_bots / 2) - similarity_black
 
             # New Algo
-            similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards])
-            similarity_black = wv.similarity(word, self.black_card) * multiplier
-            score_sum, target_cards_amount = check_word(word, similarity_not_bots, similarity_black)
+            similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards]) * 1/2
+            similarity_black = wv.similarity(word, self.black_card) * 2
+            score_sum, target_cards_amount = self.check_word(word, similarity_not_bots, similarity_black)
 
             if score_sum*target_cards_amount > best_clue[1]*best_clue[2]:
                 best_clue[0] = word
@@ -140,4 +158,4 @@ class Spymaster(Bot):
                 best_clue[2] = target_cards_amount
 
         time.sleep(10)
-        return best_clue[0]
+        return best_clue[0], best_clue[2]
