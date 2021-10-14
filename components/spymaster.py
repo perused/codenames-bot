@@ -88,39 +88,40 @@ class Spymaster(Bot):
                 print("Exiting.")
                 sys.exit()
 
+    # TODO: this whole function
     def get_clue(self):
         # the best clue should take into account our teams similarity - other team similarity
         print("Bot is thinking of a clue...")
-        self.bot_cards = ["horse", "shoe", "gallop", "ride"]
-        self.process_related()
-        self.not_bot_cards = ["dog", "man", "woman", "cat"]
-        self.neutral_cards = ["toaster", "oven", "kettle"]
-        self.black_card = "hat"
         wv = self.model
+
+        # this is where you choose to come up with a clue from either ALL WORDS (400,000 words) or a couple hundred (self.related_words)
         # all_words = self.model.index_to_key
         all_words = self.related_words
         best_clue = ["", float("-inf")]
 
-        # multipliers = [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3]
-        # num_clue = [1, 2, 3, 4, 5]
-
-        # for multiplier in multipliers:
+        # TODO: bot comes up with a number representing how many cards the clue refers to
         for i in range(len(all_words)):
             word = all_words[i]
             if word in self.bot_cards:
                 continue
-            #
+
+            # TODO: come up with a good scoring idea
+
+            # SCORE IDEA 1
             similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
             similarity_black = sum(wv.similarity(word, self.black_card) for i in range(len(self.bot_cards)))
             score = similarity_bots - similarity_black
 
+            # SCORE IDEA 2
             # similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
             # similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards])
             # similarity_black = wv.similarity(word, self.black_card) * multiplier
             # score = similarity_bots - (similarity_not_bots / 2) - similarity_black
+
             if score > best_clue[1]:
                 best_clue[0] = word
                 best_clue[1] = score
+
         time.sleep(10)
         return best_clue[0]
 
