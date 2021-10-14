@@ -1,4 +1,4 @@
-from bot import *
+from components.bot import *
 
 
 class Spymaster(Bot):
@@ -14,12 +14,16 @@ class Spymaster(Bot):
             similar = self.model.similar_by_word(word)
             for i in range(len(similar)):
                 similar_word, _ = similar[i]
+                if similar_word in word or word in similar_word:
+                    continue
                 self.related_words.append(similar_word)
         related = self.related_words.copy()
         for word in related:
             similar = self.model.similar_by_word(word)
             for i in range(len(similar)):
                 similar_word, _ = similar[i]
+                if similar_word in word or word in similar_word:
+                    continue
                 self.related_words.append(similar_word)
 
     def populate_board(self):
@@ -97,21 +101,26 @@ class Spymaster(Bot):
         all_words = self.related_words
         best_clue = ["", float("-inf")]
 
-        multipliers = [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3]
+        # multipliers = [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3]
+        # num_clue = [1, 2, 3, 4, 5]
 
-        for multiplier in multipliers:
-            for i in range(len(all_words)):
-                word = all_words[i]
-                if word in self.bot_cards:
-                    continue
-                similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
-                similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards])
-                similarity_black = wv.similarity(word, self.black_card) * multiplier
-                score = similarity_bots - (similarity_not_bots / 2) - similarity_black
-                if score > best_clue[1]:
-                    best_clue[0] = word
-                    best_clue[1] = score
-            print(f"For the multiplier {multiplier}, the clue is '{best_clue[0]}'")
+        # for multiplier in multipliers:
+        for i in range(len(all_words)):
+            word = all_words[i]
+            if word in self.bot_cards:
+                continue
+            #
+            similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
+            similarity_black = sum(wv.similarity(word, self.black_card) for i in range(len(self.bot_cards)))
+            score = similarity_bots - similarity_black
+
+            # similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
+            # similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards])
+            # similarity_black = wv.similarity(word, self.black_card) * multiplier
+            # score = similarity_bots - (similarity_not_bots / 2) - similarity_black
+            if score > best_clue[1]:
+                best_clue[0] = word
+                best_clue[1] = score
         time.sleep(10)
         return best_clue[0]
 

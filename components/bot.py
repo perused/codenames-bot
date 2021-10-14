@@ -6,7 +6,7 @@ import sys
 
 class Bot(ABC):
     def __init__(self):
-        self.model = KeyedVectors.load("glove300.word_vectors")
+        self.model = KeyedVectors.load(os.path.join("components", "glove300.word_vectors"))
         self.related_words = []
         self.all_cards = []
 

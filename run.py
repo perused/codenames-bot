@@ -1,6 +1,7 @@
 import os
-from player import Player
-from spymaster import Spymaster
+from components.player import Player
+from components.spymaster import Spymaster
+
 
 def get_bot():
     """Find out whether the player is playing as player or spymaster"""
@@ -19,7 +20,7 @@ def get_bot():
 
 def main():
     """Get the role of the bot and begin game"""
-    if not os.path.isfile("glove300.word_vectors"):
+    if not os.path.isfile("components/glove300.word_vectors"):
         raise Exception("Please execute the 'setup.sh' bash script before running this program.")
     os.system("clear")
     print("Welcome to the Codenames Bot!\n")

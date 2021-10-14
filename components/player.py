@@ -1,4 +1,4 @@
-from bot import *
+from components.bot import *
 
 
 class Player(Bot):

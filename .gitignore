@@ -1,2 +1,2 @@
-glove300.word_vectors
-glove300.word_vectors.vectors.npy
+components/glove300.word_vectors
+components/glove300.word_vectors.vectors.npy
