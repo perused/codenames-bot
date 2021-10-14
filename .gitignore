@@ -1,2 +1,4 @@
 components/glove300.word_vectors
 components/glove300.word_vectors.vectors.npy
+.ropeproject
+components/__pycache__
