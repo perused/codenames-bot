@@ -62,7 +62,7 @@ class Spymaster(Bot):
             print(i, card)
         print()
         if clue:
-            print(f"Bot just gave this clue: '{clue[0]}' {clue[1]}\n")
+            print(f"Bot just gave this clue: '{clue}'\n")
 
     def remove_cards(self, cards):
         removed = set()
@@ -122,12 +122,13 @@ class Spymaster(Bot):
     def get_clue(self):
         # the best clue should take into account our teams similarity - other team similarity
         print("Bot is thinking of a clue...")
+        print(self.bot_cards, self.not_bot_cards, self.black_card)
         wv = self.model
 
         # this is where you choose to come up with a clue from either ALL WORDS (400,000 words) or a couple hundred (self.related_words)
         # all_words = self.model.index_to_key
         all_words = self.related_words
-        best_clue = ["", 0, 0]
+        best_clue = [None, float("-inf"), 1]
 
         # TODO: bot comes up with a number representing how many cards the clue refers to
         for i, word in enumerate(all_words):
@@ -158,4 +159,7 @@ class Spymaster(Bot):
                 best_clue[2] = target_cards_amount
 
         time.sleep(10)
-        return best_clue[0], best_clue[2]
+        if best_clue[0] != None:
+            return f"{best_clue[0]}, {best_clue[2]}"
+        else:
+            return None
