@@ -1,3 +1,6 @@
+from bot import *
+
+
 class Spymaster(Bot):
     def __init__(self):
         super(Spymaster, self).__init__()
@@ -5,7 +8,6 @@ class Spymaster(Bot):
         self.not_bot_cards = []
         self.black_card = None
         self.neutral_cards = []
-        self.all_cards = []
 
     def process_related(self):
         for word in self.bot_cards:
@@ -20,7 +22,6 @@ class Spymaster(Bot):
                 similar_word, _ = similar[i]
                 self.related_words.append(similar_word)
 
-    @override
     def populate_board(self):
         self.request_cards("from the bot's team", self.bot_cards)
         self.request_cards("NOT from the bot's team", self.not_bot_cards)
@@ -31,7 +32,6 @@ class Spymaster(Bot):
         os.system("clear")
         self.all_cards = self.bot_cards + self.not_bot_cards + self.neutral_cards + [self.black_card]
 
-    @override
     def print_board(self, clue):
         os.system("clear")
         print(f"Role: Spymaster")
@@ -39,9 +39,9 @@ class Spymaster(Bot):
         for i, card in enumerate(self.all_cards):
             print(i, card)
         print()
-        print(f"Bot just gave this clue: '{clue}'\n")
+        if clue:
+            print(f"Bot just gave this clue: '{clue}'\n")
 
-    @override
     def remove_cards(self, cards):
         removed = set()
         for card in cards:
@@ -61,7 +61,6 @@ class Spymaster(Bot):
         print(f"Successfully removed {'no cards :/' if len(removed) == 0 else ', '.join(removed)}")
         time.sleep(2)
 
-    @override
     def play(self):
         clue = None
         while True:

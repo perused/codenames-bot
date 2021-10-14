@@ -1,3 +1,6 @@
+from bot import *
+
+
 class Player(Bot):
     def __init__(self):
         super(Player, self).__init__()
@@ -5,7 +8,6 @@ class Player(Bot):
     def populate_board(self):
         self.request_cards("on the board", self.all_cards)
 
-    @override
     def print_board(self, guessed):
         os.system("clear")
         print(f"Role: Player")
@@ -13,9 +15,9 @@ class Player(Bot):
         for i, card in enumerate(self.all_cards):
             print(i, card)
         print()
-        print(f"Bot just guessed these: {', '.join(guessed)}\n")
+        if guessed:
+            print(f"Bot just guessed these: {', '.join(guessed)}\n")
 
-    @override
     def remove_cards(self, cards):
         removed = set()
         for card in cards:
@@ -24,7 +26,6 @@ class Player(Bot):
         print(f"Successfully removed {'no cards :/' if len(removed) == 0 else ', '.join(removed)}")
         time.sleep(2)
 
-    @override
     def play(self):
         guessed = None
         while True:

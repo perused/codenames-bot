@@ -1,9 +1,4 @@
 import os
-import time
-import sys
-import gensim.downloader as api
-from gensim.models import KeyedVectors
-from tqdm import tqdm
 from player import Player
 from spymaster import Spymaster
 
