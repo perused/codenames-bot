@@ -88,6 +88,18 @@ class Spymaster(Bot):
                 print("Exiting.")
                 sys.exit()
 
+
+    def check_pair(word, card, similarity_not_bots, similarity_black):
+        score = wv.similarity(word, card) - (similarity_not_bots/2) - similarity_black
+        return score
+
+    def check_word(word, similarity_not_bots, similarity_black):
+        scores = { x:check_pair(word, x, similarity_not_bots, similarity_black) for x in self.bot_cards}
+        score_sum = sum(scores.values())
+        score_average = score_sum/len(scores)
+        good_cards = [ x for x in scores.values() if x >= average]
+        return score_sum, len(good_cards)
+
     # TODO: this whole function
     def get_clue(self):
         # the best clue should take into account our teams similarity - other team similarity
@@ -97,11 +109,10 @@ class Spymaster(Bot):
         # this is where you choose to come up with a clue from either ALL WORDS (400,000 words) or a couple hundred (self.related_words)
         # all_words = self.model.index_to_key
         all_words = self.related_words
-        best_clue = ["", float("-inf")]
+        best_clue = ["", 0, 0]
 
         # TODO: bot comes up with a number representing how many cards the clue refers to
-        for i in range(len(all_words)):
-            word = all_words[i]
+        for i, word in enumerate(all_words):
             if word in self.bot_cards:
                 continue
 
@@ -118,10 +129,15 @@ class Spymaster(Bot):
             # similarity_black = wv.similarity(word, self.black_card) * multiplier
             # score = similarity_bots - (similarity_not_bots / 2) - similarity_black
 
-            if score > best_clue[1]:
+            # New Algo
+            similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards])
+            similarity_black = wv.similarity(word, self.black_card) * multiplier
+            score_sum, target_cards_amount = check_word(word, similarity_not_bots, similarity_black)
+
+            if score_sum*target_cards_amount > best_clue[1]*best_clue[2]:
                 best_clue[0] = word
-                best_clue[1] = score
+                best_clue[1] = score_sum
+                best_clue[2] = target_cards_amount
 
         time.sleep(10)
         return best_clue[0]
-
