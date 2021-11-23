@@ -14,4 +14,4 @@ Then you are ready to run the program.
 
 ## Issues
 
-Player is finished but Spymaster is still in progress.
+Player is finished and decent but Spymaster guesses could do with some fine tuning.

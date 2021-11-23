@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="bda0d73f-5c0d-4fef-8143-ad70908f6532" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/spymaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/spymaster.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
