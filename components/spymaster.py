@@ -48,7 +48,6 @@ class Spymaster(Bot):
             self.black_card = lines[-1].rstrip()
         self.process_added()
 
-
     def print_board(self, clue):
         os.system("clear")
         print(f"Role: Spymaster")
@@ -100,7 +99,6 @@ class Spymaster(Bot):
             elif entry == "q":
                 print("Exiting.")
                 sys.exit()
-
 
     def check_pair(self, word, card, similarity_not_bots, similarity_black):
         score = self.model.similarity(word, card) - similarity_not_bots - similarity_black
