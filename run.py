@@ -173,9 +173,11 @@ def get_team():
     return team
 
 def main():
-    # check requirements
-    # if not os.path.isfile("glove300.word_vectors"):
-    #     raise Exception("Please execute the 'setup.sh' bash script before running this program.")
+    """Get the role of the bot and begin game"""
+    if not os.path.isfile("glove300.word_vectors"):
+        print("When running codenames bot for the first time, a one-off download is required.")
+        model = gensim.downloader.load('glove-wiki-gigaword-300')
+        model.save("glove300.word_vectors")
     os.system("clear")
     print("Welcome to the Codenames Bot!\n")
     role = get_role()
