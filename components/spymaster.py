@@ -26,15 +26,28 @@ class Spymaster(Bot):
                     continue
                 self.related_words.append(similar_word)
 
+    def process_added(self):
+        print("\nThank you, card accepted.\n\n Processing cards...\n")
+        self.process_related()
+        os.system("clear")
+        self.all_cards = self.bot_cards + self.not_bot_cards + self.neutral_cards + [self.black_card]
+
     def populate_board(self):
         self.request_cards("from the bot's team", self.bot_cards)
         self.request_cards("NOT from the bot's team", self.not_bot_cards)
         self.request_cards("neutral", self.neutral_cards)
         self.black_card = input("Please enter the black card here: ").lower()
-        print("\nThank you, card accepted.\n\n Processing cards...\n")
-        self.process_related()
-        os.system("clear")
-        self.all_cards = self.bot_cards + self.not_bot_cards + self.neutral_cards + [self.black_card]
+        self.process_added()
+
+    def get_cards_from_file(self, file_path):
+        with open(file_path, "r") as f:
+            lines = f.readlines()
+            lists = [self.bot_cards, self.not_bot_cards, self.neutral_cards]
+            for line, list in zip(lines, lists):
+                list += line.rstrip().split(" ")
+            self.black_card = lines[-1].rstrip()
+        self.process_added()
+
 
     def print_board(self, clue):
         os.system("clear")
@@ -88,40 +101,40 @@ class Spymaster(Bot):
                 print("Exiting.")
                 sys.exit()
 
-    # TODO: this whole function
+
+    def check_pair(self, word, card, similarity_not_bots, similarity_black):
+        score = self.model.similarity(word, card) - similarity_not_bots - similarity_black
+        return score
+
+    def check_word(self, word, similarity_not_bots, similarity_black):
+        scores = { x: self.check_pair(word, x, similarity_not_bots, similarity_black) for x in self.bot_cards}
+        score_sum = sum(scores.values())
+        score_average = score_sum/len(scores)
+        good_cards = [ x for x in scores.values() if x >= score_average]
+        return score_sum, len(good_cards)
+
     def get_clue(self):
-        # the best clue should take into account our teams similarity - other team similarity
         print("Bot is thinking of a clue...")
         wv = self.model
 
-        # this is where you choose to come up with a clue from either ALL WORDS (400,000 words) or a couple hundred (self.related_words)
-        # all_words = self.model.index_to_key
         all_words = self.related_words
-        best_clue = ["", float("-inf")]
+        best_clue = [None, float("-inf"), 1]
 
-        # TODO: bot comes up with a number representing how many cards the clue refers to
-        for i in range(len(all_words)):
-            word = all_words[i]
+        for i, word in enumerate(all_words):
             if word in self.bot_cards:
                 continue
 
-            # TODO: come up with a good scoring idea
+            similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards]) * 1/2
+            similarity_black = wv.similarity(word, self.black_card) * 2
+            score_sum, target_cards_amount = self.check_word(word, similarity_not_bots, similarity_black)
 
-            # SCORE IDEA 1
-            similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
-            similarity_black = sum(wv.similarity(word, self.black_card) for i in range(len(self.bot_cards)))
-            score = similarity_bots - similarity_black
-
-            # SCORE IDEA 2
-            # similarity_bots = sum([wv.similarity(word, x) for x in self.bot_cards])
-            # similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards])
-            # similarity_black = wv.similarity(word, self.black_card) * multiplier
-            # score = similarity_bots - (similarity_not_bots / 2) - similarity_black
-
-            if score > best_clue[1]:
+            if score_sum*target_cards_amount > best_clue[1]*best_clue[2]:
                 best_clue[0] = word
-                best_clue[1] = score
+                best_clue[1] = score_sum
+                best_clue[2] = target_cards_amount
 
         time.sleep(10)
-        return best_clue[0]
-
+        if best_clue[0] != None:
+            return f"{best_clue[0]}, {best_clue[2]}"
+        else:
+            return None
