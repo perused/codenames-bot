@@ -30,8 +30,8 @@ class Player(Bot):
         guessed = None
         while True:
             self.print_board(guessed)
-            print(f"Enter one of the following:\n'r' to remove cards that have been guessed.\n'c' to request a clue "
-                  f"from the bot\n'q' to quit\n")
+            print(f"Enter one of the following:\n'r' to remove cards that have been guessed.\n'c' to give a clue "
+                  f"to the bot\n'q' to quit\n")
             entry = input("Enter here: ")
             print()
             if entry == "r":

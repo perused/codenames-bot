@@ -4,14 +4,13 @@ A bot that can play as Spymaster or as a player in the popular card game Codenam
 
 ## Setup
 
-Run the setup script. 
+This project uses `pipenv` for dependency management. Run `pip install pipenv` and install Python 3.6 (either download `pyenv` and run the line of code below or download manually from the Python website). 
 
-<code>bash setup.sh</code>
+Then you are ready to run the project.
 
-Then you are ready to run the program.
-
-<code>python3 run.py</code>
+<code>pipenv run python run.py</code>
 
 ## Issues
 
-Player is finished and decent but Spymaster guesses could do with some fine tuning.
+- Spymaster guesses could do with some fine tuning. 
+- Has only been tested on OSX so far.

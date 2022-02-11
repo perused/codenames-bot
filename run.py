@@ -1,4 +1,6 @@
+import gensim.downloader
 import os
+
 from components.player import Player
 from components.spymaster import Spymaster
 
@@ -20,10 +22,10 @@ def get_bot():
 
 def main():
     """Get the role of the bot and begin game"""
-    if not os.path.isfile("glove300.word_vectors"):
-        print("When running codenames bot for the first time, a one-off download is required.")
+    if not os.path.isfile(os.path.join("components", "glove300.word_vectors")):
+        print("When running codenames bot for the first time, a one-off download is required. Please wait...")
         model = gensim.downloader.load('glove-wiki-gigaword-300')
-        model.save(os.path.join("glove300.word_vectors"))
+        model.save(os.path.join("components", "glove300.word_vectors"))
     os.system("clear")
     print("Welcome to the Codenames Bot!\n")
     bot = get_bot()
