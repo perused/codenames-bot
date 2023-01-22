@@ -26,9 +26,9 @@ class Bot(ABC):
     def play(self):
         pass
 
-    @abstractmethod
-    def get_cards_from_file(file_path):
-        pass
+    # @abstractmethod
+    # def get_cards_from_file(file_path):
+    #     pass
 
 
     def request_cards(self, req, ls):

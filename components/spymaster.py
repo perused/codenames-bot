@@ -1,5 +1,5 @@
 from components.bot import *
-
+from components import twl
 
 class Spymaster(Bot):
     def __init__(self):
@@ -119,7 +119,7 @@ class Spymaster(Bot):
         best_clue = [None, float("-inf"), 1]
 
         for i, word in enumerate(all_words):
-            if word in self.bot_cards:
+            if word in self.bot_cards or not twl.check(word):
                 continue
 
             similarity_not_bots = sum([wv.similarity(word, x) for x in self.not_bot_cards]) * 1/2
